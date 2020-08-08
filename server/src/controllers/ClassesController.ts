@@ -19,12 +19,13 @@ export default class ClassesController {
         .status(400)
         .json({ error: 'Missing filters to search class' });
     }
+
     const timeInMinutes = convertHourToMinuts(time);
     const classes = await db('classes')
       .whereExists(function () {
         this.select('class_schedule.*')
           .from('class_schedule')
-          .whereRaw('`class_schedule`.`class_id` = `classes`.`id`')
+          .whereRaw('`class_schedule`.`class_id`')
           .whereRaw('`class_schedule`.`week_day` = ??', [Number(week_day)])
           .whereRaw('`class_schedule`.`from` <= ??', [Number(timeInMinutes)])
           .whereRaw('`class_schedule`.`to` > ??', [Number(timeInMinutes)]);
