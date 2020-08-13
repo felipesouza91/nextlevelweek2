@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-
+import { useFocusEffect } from '@react-navigation/native'
 import styles from './styles';
 import PageHeader from '../../components/PageHeader';
 import { ScrollView } from 'react-native-gesture-handler';
-import TeacherItem from '../../components/TeacherItem';
+import TeacherItem, { Teacher } from '../../components/TeacherItem';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const Favorites: React.FC = () => {
+  const [favoriteList, setFavoriteList ] = useState(Array<Teacher>());
+  function loadFavorites() {
+    AsyncStorage.getItem('favorites').then(response => {
+      if( response ) {
+        const favoritedTeachers = JSON.parse(response)
+        setFavoriteList(favoritedTeachers)
+      }
+    })
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFavorites();
+    }, [])
+  )
+  
   return (
     <View style={styles.container}>
       <PageHeader title="Meus Proffs favoritos" />
@@ -17,13 +34,13 @@ const Favorites: React.FC = () => {
           paddingBottom: 16,
         }}
       >
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
+        {favoriteList.map( teacher => 
+          <TeacherItem 
+            key={teacher.id}
+            value={teacher}
+            favorited={true}
+            />)}
+        
       </ScrollView>
     </View>
   );
